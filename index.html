@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>毛孩的平行宇宙一生 👾 (幸運投資生存版)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <style>
+        .pixel-text { font-family: 'ZCOOL KuaiLe', cursive; }
+    </style>
+</head>
+<body class="bg-[#99B898] text-gray-800 flex flex-col justify-center items-center min-h-screen p-4">
+
+    <!-- 復古 Game Boy 外殼 -->
+    <div class="bg-[#E84A5F] p-6 rounded-3xl shadow-2xl max-w-sm w-full border-8 border-[#3A4F50]">
+        
+        <div class="flex justify-center space-x-2 mb-4">
+            <div class="w-8 h-2 bg-[#3A4F50] rounded-full opacity-30"></div>
+            <div class="w-8 h-2 bg-[#3A4F50] rounded-full opacity-30"></div>
+        </div>
+
+        <!-- 遊戲主螢幕 -->
+        <div class="bg-[#C4E3CB] p-4 rounded-lg border-4 border-[#3A4F50] min-h-[420px] flex flex-col justify-between relative">
+            
+            <!-- 狀態欄 -->
+            <div class="flex flex-col text-xs font-bold text-[#3A4F50] pixel-text mb-2 border-b-2 border-[#3A4F50] pb-2">
+                <div class="flex justify-between">
+                    <span id="pet-age">🐾 遊戲準備開始</span>
+                    <span id="pet-money" class="text-[#3A4F50]">💰 存款: 50,000</span>
+                </div>
+                <div class="flex justify-between text-[10px] text-gray-600 mt-1">
+                    <!-- 🆕 規則修改：每年收入提升至五萬 -->
+                    <span>每年收入: +50,000</span>
+                    <span id="base-cost-ui">基本開銷: --</span>
+                </div>
+            </div>
+
+            <!-- 核心動態顯示區 -->
+            <div class="my-auto text-center py-2 overflow-y-auto max-h-[260px]" id="display-area">
+                <!-- 開局選單 -->
+                <div id="start-screen">
+                    <div class="text-5xl animate-bounce mb-3">👾</div>
+                    <p class="text-sm font-bold text-[#2A3A3B] mb-3 pixel-text">請選擇你想挑戰養育的毛孩品種：</p>
+                    <select id="breed-select" class="w-full p-2 border-2 border-[#3A4F50] rounded bg-white text-xs font-bold pixel-text mb-4 focus:outline-none">
+                        <option value="英短貓">英國短毛貓 🐱 (高發泌尿、腎病風險)</option>
+                        <option value="法鬥犬">法國鬥牛犬 🐶 (高發皮膚、呼吸道風險)</option>
+                        <option value="米克斯">米克斯 🐾 (身體強壯，隨機性極高)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 互動按鈕區 -->
+            <div id="action-zone" class="text-center mt-2">
+                <!-- 開始遊戲按鈕 -->
+                <button onclick="startGame()" id="start-btn"
+                        class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded border-b-4 border-green-900 active:border-b-0 pixel-text text-sm transition cursor-pointer">
+                    孵化毛孩，開啟命運 🐣
+                </button>
+
+                <!-- 下一歲按鈕 -->
+                <button onclick="nextYear()" id="main-btn"
+                        class="hidden w-full bg-[#3A4F50] hover:bg-gray-800 text-white font-bold py-3 px-4 rounded border-b-4 border-gray-900 active:border-b-0 pixel-text text-sm transition cursor-pointer">
+                    下一歲命運抽卡 🎲
+                </button>
+
+                <!-- 選擇題按鈕區 -->
+                <div id="choice-btn-group" class="hidden flex-col space-y-2">
+                    <button onclick="makeChoice('A')" id="btn-a" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-2 rounded pixel-text text-xs border-b-4 border-blue-900 active:border-b-0 cursor-pointer"></button>
+                    <button onclick="makeChoice('B')" id="btn-b" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-2 rounded pixel-text text-xs border-b-4 border-orange-800 active:border-b-0 cursor-pointer"></button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- 遊戲核心混沌引擎 -->
+    <script>
+        let currentAge = 1;
+        let savings = 50000;          
+        const annualIncome = 50000;   // 🆕 收入升級為 50000
+        let basicPetCost = 30000; 
+        let lifespan = 15;
+        
+        let selectedBreed = "";
+        let petEmoji = "🐱";
+        let isSick = false;       
+        let ateCheapFood = false; 
+        let currentChoiceEvent = null; 
+
+        // 1. 固定主線劇情資料庫
+        const breedDatabase = {
+            "英短貓": {
+                emoji: "🐱",
+                lifespanRange: [12, 7], 
+                choice3: {
+                    text: "【主線抉擇】醫生說英短容易有泌尿道缺陷，建議換吃高級主食罐預防，你要換嗎？",
+                    optionA: { text: "A: 換！主子健康重要 (當下扣 2,000 伙食費，每年開銷 +5,000)", cost: 2000, changeCost: 5000, resultText: "你升級了伙食！雖然每年固定變貴，但成功幫咪咪建立了泌尿道防線。" },
+                    optionB: { text: "B: 沒錢，吃便宜乾飼料就好", cost: 0, changeCost: 0, setCheapFood: true, resultText: "省下了當下費用，但咪咪喝水喝得少，體內隱患正在悄悄堆積..." }
+                },
+                check6: function() {
+                    if (ateCheapFood && Math.random() < 0.7) {
+                        isSick = true;
+                        savings -= 25000; 
+                        return "⚠️ 審判降臨！因為長期吃便宜乾飼料，咪咪突發尿道炎急診住院！當下暴扣 25,000 元！\n(從此染上慢性腎病，每年強制多扣 20,000 醫藥費！)";
+                    } else if (ateCheapFood) {
+                        return "🍀 僥倖逃脫！雖然吃便宜飼料，但咪咪今年健檢居然奇蹟過關。別高興太早...";
+                    } else {
+                        return "✅ 預防成功！多虧了當初的高級主食罐，咪咪體檢指標非常健康！";
+                    }
+                }
+            },
+            "法鬥犬": {
+                emoji: "🐶",
+                lifespanRange: [10, 5], 
+                choice3: {
+                    text: "【主線抉擇】法鬥皮膚極度敏感。梅雨季來臨，要加裝 24H 醫療級除濕機與低敏飼料嗎？",
+                    optionA: { text: "A: 裝！不能讓牠抓到流血 (當下扣 5,000 電器費，每年開銷 +4000)", cost: 5000, changeCost: 4000, resultText: "當下扣除 5,000 元！家裡變得乾爽，法鬥摸起來很舒服。" },
+                    optionB: { text: "B: 吹電風扇就好，沒那麼嬌貴", cost: 0, changeCost: 0, setCheapFood: true, resultText: "省下了錢。但環境潮濕，法鬥開始瘋狂用腳啃咬指縫..." }
+                },
+                check6: function() {
+                    if (ateCheapFood && Math.random() < 0.7) {
+                        isSick = true;
+                        savings -= 20000; 
+                        return "⚠️ 審判降臨！法鬥爆發嚴重的異位性皮膚炎，全身抓到潰爛流血！急診拿藥暴扣 20,000 元！\n(從此轉為慢性過敏，每年強制多扣 18,000 拿類固醇與專利藥！)";
+                    } else if (ateCheapFood) {
+                        return "🍀 運氣好！今年除濕靠天公作美，皮膚竟然沒有大爆發。";
+                    } else {
+                        return "✅ 預防成功！24H 除濕發揮威力，法鬥皮膚光滑，健檢過關！";
+                    }
+                }
+            },
+            "米克斯": {
+                emoji: "🐾",
+                lifespanRange: [14, 6], 
+                choice3: {
+                    text: "【主線抉擇】米克斯雖然強壯，但 3 歲精力旺盛。要花錢送去上行為訓練課防止拆家嗎？",
+                    optionA: { text: "A: 送！培養乖乖毛孩 (當下扣 8,000 學費，每年固定支出 +1000)", cost: 8000, changeCost: 1000, resultText: "當下痛失 8,000 元！但毛孩學會了社會化與冷靜。" },
+                    optionB: { text: "B: 浪費錢，打罵教育就好", cost: 0, changeCost: 0, setCheapFood: true, resultText: "省了學費。但毛孩在家極度焦慮，開始對所有家具虎視眈眈..." }
+                },
+                check6: function() {
+                    if (ateCheapFood && Math.random() < 0.6) {
+                        savings -= 30000; 
+                        return "⚠️ 報應來了！你不在家時，米克斯瘋狂焦慮拆家，把客廳沙發、電視線全部咬爛，還吞下碎屑送醫！當下讓你損失 30,000 元！";
+                    } else {
+                        return "✅ 平安無事！米克斯發揮了土狗的優良傳統，今年拆家機率骰到安全區。";
+                    }
+                }
+            }
+        };
+
+        // 純單向隨機意外池
+        const randomPureEvents = [
+            { text: "突發意外：毛孩半夜劇烈嘔吐，掛 24H 急診打止吐針與血檢。", cost: 6000 },
+            { text: "日常搗蛋：毛孩把你桌上的滑鼠和耳機咬爛，你只好買新的換掉。", cost: 4000 },
+            { text: "意外受傷：毛孩在家跳躍時不小心扭傷腳，帶去照 X 光。", cost: 5500 },
+            { text: "小確幸：買寵物用品的發票幸運中了 2,000 元！補貼家用。", cost: -2000 },
+            { text: "小確幸：過年親戚來家裡作客，覺得毛孩太可愛了，塞了 1,500 元大紅包給牠！", cost: -1500 }
+        ];
+
+        // 🆕 升級版：日常隨機「雙向抉擇」事件池（全面混入幸運、正面、博弈選項！）
+        const randomChoiceEvents = [
+            // --- 正面／幸運／理財選項 ---
+            {
+                text: "🎉【幸運時刻】你在網路上幫毛孩拍的搞笑短片突然在 Threads 爆紅！有寵物乾乾廠商找上門談業配，但需要先自費 2,000 購買樣品拍開箱，你要接嗎？",
+                optionA: { text: "A: 接！投資毛孩當網紅 (當下扣 2,000，但未來每年基金收入 +6,000)", cost: 2000, changeCost: -600, resultText: "太幸運了！開箱影片大受歡迎，你成功簽下長期業配，未來每年收入直接變多！" }, // changeCost 為負代表減免開銷(等於加薪)
+                optionB: { text: "B: 懶得拍片，拒絕商業化", cost: 0, changeCost: 0, resultText: "你錯過了當網紅的機會，毛孩繼續過著平凡慵懶的生活。" }
+            },
+            {
+                text: "📈【商務博弈】同學推薦你一個去中心化的加密貨幣「迷因貓狗幣」社群。聽說幫毛孩買一個數位身分（NFT）只要 5,000 元，未來有機會獲得寵物展免費門票和空投，要試試看嗎？",
+                optionA: { text: "A: 以小博大，買一個試試！ (當下扣 5,000)", cost: 5000, changeCost: 0, resultText: function() {
+                    if (Math.random() < 0.6) {
+                        savings += 15000; // 60%機率暴賺
+                        return "🚀 投機成功！迷因幣夜之間暴漲，你當下把空投賣掉淨賺 15,000 元！毛孩自己賺到了好幾年的罐罐錢！";
+                    } else {
+                        return "📉 韭菜降臨！該項目隔天直接宣布團隊跑路，你的 5,000 元直接歸零，只留下一個打不開的網頁圖片...";
+                    }
+                }},
+                optionB: { text: "B: 拒絕投機，錢包放在口袋最安全", cost: 0, changeCost: 0, resultText: "你冷靜克制了慾望。雖然沒賺到，但也絕對沒有虧損。" }
+            },
+            {
+                text: "🎁【好運降臨】路過寵物用品店，門口正在舉辦『一元盲盒抽智能餵食器』活動，參加獎也有精美好禮，單次參加費 500 元，你要試手氣嗎？",
+                optionA: { text: "A: 抽！相信毛孩的肉墊運氣 (當下扣 500)", cost: 500, changeCost: 0, resultText: function() {
+                    if (Math.random() < 0.3) {
+                        basicPetCost -= 2000; // 30%機率永久降低基本開銷
+                        return "🏅 歐皇附體！毛孩一腳踩中一等獎，贏得價值 6,000 元的智能自動餵食器！未來每年的飼料損耗與基本開銷永久降低 2,000 元！";
+                    } else {
+                        return "📦 普獎安收。只抽到一包試吃包乾乾與一個貓草老鼠玩具，價值大約剛好 500 元。";
+                    }
+                }},
+                optionB: { text: "B: 這種抽獎都是騙人的，走過去就好", cost: 0, changeCost: 0, resultText: "你轉身離開，不花任何冤枉錢。" }
+            },
+            // --- 常規防禦選項 ---
+            {
+                text: "❓【日常抉擇】毛孩牙結石嚴重，獸醫建議安排全麻洗牙預防牙周病，你要做嗎？",
+                optionA: { text: "A: 做！牙齒健康影響壽命 (當下扣 6,000 洗牙費)", cost: 6000, changeCost: 0, resultText: "你花了 6,000 元洗牙。毛孩嘴巴變乾淨了，牙齦不再發炎發臭！" },
+                optionB: { text: "B: 聽說全麻有風險，省下來吧", cost: 0, changeCost: 0, resultText: "省了 6,000 元。但口臭越來越嚴重，未來可能面臨大範圍拔牙手術..." }
+            },
+            {
+                text: "❓【日常抉擇】知名網紅推薦了一款『頂級綜合免疫力提升魚油』，聽說對皮膚和毛髮極好，要買嗎？",
+                optionA: { text: "A: 買！聽說可以增強抵抗力 (當下扣 1,800，且每年基本開銷 +500)", cost: 1800, changeCost: 500, resultText: "付了 1,800 元。毛孩吃完毛髮變得非常油亮順滑！" },
+                optionB: { text: "B: 太噱頭了，吃一般飼料營養就夠了", cost: 0, changeCost: 0, resultText: "省下這筆預算。毛孩沒什麼變化，換季時依然瘋狂掉毛。" }
+            }
+        ];
+
+        function startGame() {
+            selectedBreed = document.getElementById('breed-select').value;
+            const breedConfig = breedDatabase[selectedBreed];
+            
+            petEmoji = breedConfig.emoji;
+            lifespan = Math.floor(Math.random() * breedConfig.lifespanRange[1]) + breedConfig.lifespanRange[0];
+
+            document.getElementById('display-area').innerHTML = `
+                <div class="text-5xl animate-bounce mb-3" id="pet-emoji">${petEmoji}</div>
+                <p id="event-text" class="text-sm font-bold text-[#2A3A3B] leading-relaxed pixel-text"></p>
+            `;
+
+            document.getElementById('start-btn').classList.add('hidden');
+            document.getElementById('main-btn').classList.remove('hidden');
+
+            document.getElementById('pet-age').innerText = `🐾 ${selectedBreed}: 1 歲`;
+            document.getElementById('base-cost-ui').innerText = `基本開銷: -${basicPetCost}`;
+            updateMoneyUI();
+
+            document.getElementById('event-text').innerText = `你領養了一隻超級可愛的【${selectedBreed}】！\n目前 1 歲健康有活力。\n\n按下方按鈕，開始模擬牠的一生吧！`;
+        }
+
+        function nextYear() {
+            currentAge += 1;
+            
+            if (currentAge > lifespan) {
+                endGame();
+                return;
+            }
+
+            document.getElementById('pet-age').innerText = `🐾 ${selectedBreed}: ${currentAge} 歲 ${isSick ? '🤒(生病中)' : ''}`;
+
+            const config = breedDatabase[selectedBreed];
+
+            if (currentAge === 3) {
+                triggerChoice(config.choice3);
+                return;
+            } 
+            else if (currentAge === 6) {
+                let judgmentText = config.check6(); 
+                executeYearEndAccounting(judgmentText);
+                return;
+            } 
+            else if (currentAge === 10 && isSick) {
+                savings -= 40000;
+                executeYearEndAccounting("🚨 慢性病併發症惡化！毛孩在中老年突發器官衰竭，緊急送進加護病房一週，當下大出血暴扣 40,000 元！");
+                return;
+            }
+
+            // 一般年份：80% 機率觸發日常隨機事件
+            if (Math.random() < 0.8) {
+                if (Math.random() < 0.5) {
+                    const randIndex = Math.floor(Math.random() * randomChoiceEvents.length);
+                    const choiceEvent = randomChoiceEvents[randIndex];
+                    triggerChoice(choiceEvent); 
+                } else {
+                    const randIndex = Math.floor(Math.random() * randomPureEvents.length);
+                    const event = randomPureEvents[randIndex];
+                    savings -= event.cost; 
+                    executeYearEndAccounting(`⚡ ${event.text}`);
+                }
+            } else {
+                let peaceText = isSick ? `🤒 毛孩雖然長期生病吃藥，但今年病情穩定，沒有發生突發意外。` : `✅ 難得平靜的一年！毛孩每天吃飽睡好，在陽光下伸懶腰。`;
+                executeYearEndAccounting(peaceText);
+            }
+        }
+
+        function executeYearEndAccounting(eventMessage) {
+            let currentYearCost = basicPetCost;
+            if (isSick) {
+                currentYearCost += 20000; 
+            }
+
+            // 【唯一帳目結算點】
+            savings = savings + annualIncome - currentYearCost;
+            
+            document.getElementById('base-cost-ui').innerText = `基本+醫療: -${currentYearCost}`;
+            updateMoneyUI();
+
+            let annualReport = `\n\n📊【第 ${currentAge} 年底財務結算】\n➕ 寵物基金收入: +${annualIncome}\n➖ 基礎養育常規開銷: -30000`;
+            if (basicPetCost > 30000) {
+                annualReport += `\n➖ 固定升級開銷: +${basicPetCost - 30000}`;
+            } else if (basicPetCost < 30000) {
+                annualReport += `\n🎉 智能電器節省開銷: +${30000 - basicPetCost}`;
+            }
+            if (isSick) {
+                annualReport += `\n➖ 慢性病藥費/處方開銷: -20000`;
+            }
+
+            document.getElementById('event-text').innerText = `${eventMessage}${annualReport}`;
+        }
+
+        function triggerChoice(event) {
+            currentChoiceEvent = event;
+            document.getElementById('event-text').innerText = event.text;
+            
+            document.getElementById('main-btn').classList.add('hidden');
+            document.getElementById('choice-btn-group').classList.remove('hidden');
+            
+            document.getElementById('btn-a').innerText = (typeof event.optionA.text === 'function') ? event.optionA.text() : event.optionA.text;
+            document.getElementById('btn-b').innerText = (typeof event.optionB.text === 'function') ? event.optionB.text() : event.optionB.text;
+        }
+
+        function makeChoice(choice) {
+            const selectedOption = choice === 'A' ? currentChoiceEvent.optionA : currentChoiceEvent.optionB;
+            
+            // 當下扣除固定單次費用
+            savings -= selectedOption.cost;
+            
+            // 改變未來年固定開銷
+            basicPetCost += selectedOption.changeCost; 
+            if (selectedOption.setCheapFood !== undefined) {
+                ateCheapFood = selectedOption.setCheapFood;
+            }
+
+            // 🆕 核心優化：支援動態隨機文字結果（用來跑加密貨幣和盲盒的隨機機率）
+            let responseText = "";
+            if (typeof selectedOption.resultText === 'function') {
+                responseText = selectedOption.resultText(); // 執行機率判定並拿到回報文字
+            } else {
+                responseText = selectedOption.resultText;
+            }
+
+            document.getElementById('main-btn').classList.remove('hidden');
+            document.getElementById('choice-btn-group').classList.add('hidden');
+            currentChoiceEvent = null;
+
+            if (selectedOption.cost > 0) {
+                responseText += `\n(❌ 選項當下單次支出: -${selectedOption.cost})`;
+            }
+            
+            // 執行唯一的年度結算
+            executeYearEndAccounting(responseText);
+        }
+
+        function updateMoneyUI() {
+            const moneySpan = document.getElementById('pet-money');
+            moneySpan.innerText = `💰 存款: ${savings.toLocaleString()}`; 
+            if (savings < 0) {
+                moneySpan.classList.remove('text-[#3A4F50]');
+                moneySpan.classList.add('text-red-600');
+            } else {
+                moneySpan.classList.remove('text-red-600');
+                moneySpan.classList.add('text-[#3A4F50]');
+            }
+        }
+
+        function endGame() {
+            document.getElementById('pet-age').innerText = `🐾 ${selectedBreed} 去當小天使了`;
+            document.getElementById('pet-emoji').innerText = "👼"; 
+            
+            let finalOutput = `【宇宙結算】\n${selectedBreed} 陪伴了你完整的 ${lifespan} 年人生。\n你最終的存款剩餘：${savings.toLocaleString()} 元。\n`;
+            
+            if (savings < 0) {
+                finalOutput += `\n⚠️ 警告：你已陷入破產負債！\n現實中，如果沒有提早使用科學補品進行品種高發病防禦，這就是最真實的下場。`;
+            } else {
+                finalOutput += `\n恭喜！你用極高的自律與財力守住了錢包與毛孩的健康！`;
+            }
+
+            finalOutput += `\n\n<input type='email' id='game-email' placeholder='輸入 Gmail 領取【${selectedBreed}高發病防禦指南】' class='w-full px-2 py-2 text-xs border-2 border-[#3A4F50] rounded mb-2 text-gray-800 focus:outline-none pixel-text'>`;
+            
+            document.getElementById('event-text').innerHTML = finalOutput;
+            
+            const mainBtn = document.getElementById('main-btn');
+            mainBtn.innerText = "免費領取專屬品種保養清單 🎁";
+            mainBtn.classList.replace('bg-[#3A4F50]', 'bg-red-600');
+            mainBtn.classList.replace('border-gray-900', 'border-red-900');
+            
+            mainBtn.onclick = function() {
+                const email = document.getElementById('game-email').value;
+                if(email && email.includes('@')) {
+                    alert('名單收集成功！這份精準的車友名單，將成為我們未來開拓保健品團購管道的超強談判籌碼！');
+                } else {
+                    alert('請輸入正確的 Gmail 唷！');
+                }
+            };
+        }
+    </script>
+</body>
+</html>
