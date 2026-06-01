@@ -1,367 +1,74 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>毛孩放置宇宙 - 終極桌寵互動版</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
-    <style>
-        /* 🎨 寵物外觀設定區 (CSS 變數)：未來換新形象只要改這裡！ */
-        :root {
-            --pet-skin-dark: #2A3A3B;   
-            --pet-skin-light: #3A4F50;  
-            --pet-eye-color: #FFFFFF;   
-            --pet-sick-dark: #475569;   
-            --pet-sick-light: #64748b;  
-        }
-
-        .pixel-text { font-family: 'ZCOOL KuaiLe', cursive; }
-        
-        /* 🌟 核心動畫庫 */
-        @keyframes body-breathe {
-            0%, 100% { transform: translateY(0) scaleY(1); }
-            50% { transform: translateY(-4px) scaleY(1.05); }
-        }
-        .animate-breathe { animation: body-breathe 2s ease-in-out infinite; }
-
-        @keyframes pet-touch {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            30% { transform: scale(1.1, 0.9) rotate(-5deg); }
-            70% { transform: scale(1.05, 1.05) rotate(5deg); }
-        }
-        .animate-touch { animation: pet-touch 0.4s ease-in-out; }
-
-        @keyframes pet-jump {
-            0%, 100% { transform: translateY(0) scale(1); }
-            30% { transform: translateY(10px) scale(1.1, 0.8); }
-            50% { transform: translateY(-30px) scale(0.9, 1.2); }
-            70% { transform: translateY(-5px) scale(1.05, 0.95); }
-        }
-        .animate-jump { animation: pet-jump 0.6s ease-in-out; }
-
-        @keyframes pet-sick {
-            0%, 100% { transform: translateX(0) scaleY(0.9); }
-            20% { transform: translateX(-2px) scaleY(0.9); }
-            40% { transform: translateX(2px) scaleY(0.88); }
-            60% { transform: translateX(-2px) scaleY(0.9); }
-            80% { transform: translateX(2px) scaleY(0.88); }
-        }
-        .animate-sick { animation: pet-sick 0.4s linear infinite; }
-
-        @keyframes pet-spin {
-            0% { transform: rotate(0deg) scale(1); }
-            50% { transform: rotate(180deg) scale(1.2); }
-            100% { transform: rotate(360deg) scale(1); }
-        }
-        .animate-spin-crazy { animation: pet-spin 0.5s ease-in-out; }
-
-        @keyframes particle-up {
-            0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-60px) scale(1.3) rotate(20deg); opacity: 0; }
-        }
-        .pop-particle { animation: particle-up 0.7s ease-out forwards; }
-        
-        @keyframes dizzy-star {
-            0% { transform: translate(0, 0) scale(0.5) rotate(0deg); opacity: 1; }
-            50% { transform: translate(15px, -30px) scale(1.5) rotate(180deg); opacity: 1; }
-            100% { transform: translate(30px, 10px) scale(0.5) rotate(360deg); opacity: 0; }
-        }
-        .star-particle { animation: dizzy-star 0.8s ease-out forwards; }
-
-        @keyframes pulse-red {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            50% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
-        }
-        .sick-alert { animation: pulse-red 1.5s infinite; background-color: #fca5a5 !important; }
-
-        .skin-dark { background-color: var(--pet-skin-dark); }
-        .skin-light { background-color: var(--pet-skin-light); }
-        .eye-color { color: var(--pet-eye-color); }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CornerMate 貓咪後台管理基地</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-transparent text-gray-800 flex justify-center items-center min-h-screen p-2 overflow-hidden relative select-none">
+<body>
 
-    <div id="main-window" class="bg-[#E84A5F] p-4 rounded-3xl shadow-2xl w-full border-8 border-[#3A4F50] transition-all duration-300 transform scale-100 opacity-100 max-w-[380px]">
-        <div class="flex justify-between items-center mb-4">
-            <div class="flex space-x-2">
-                <div class="w-6 h-2 bg-[#3A4F50] rounded-full opacity-30"></div>
-                <div class="w-6 h-2 bg-[#3A4F50] rounded-full opacity-30"></div>
-            </div>
-            <button onclick="toggleHide(event)" class="bg-[#3A4F50] hover:bg-gray-800 text-white text-xs px-3 py-1 rounded pixel-text cursor-pointer">
-                [-] 縮小
-            </button>
-        </div>
+  <div id="game-header">
+    <div class="logo">🐾 CornerMate 房間基地</div>
+    <div class="stats">
+      <span>💰 金幣: <span id="money-display">1000</span></span>
+      <button id="minimize-btn">🔌 縮小成陪伴模式</button>
+    </div>
+  </div>
 
-        <div class="bg-[#C4E3CB] p-4 rounded-lg border-4 border-[#3A4F50] min-h-[360px] flex flex-col justify-between">
-            <div class="flex justify-between border-b-2 border-[#3A4F50] pb-2 pixel-text text-sm font-bold text-[#3A4F50]">
-                <span id="pet-status">🐾 狀態: 🌱 正常</span>
-                <span id="pet-money">💰 存款: 50,000</span>
-            </div>
-
-            <div class="text-center my-auto py-2 relative flex flex-col items-center justify-center min-h-[180px]">
-                <div id="particle-container-main" class="absolute inset-0 pointer-events-none z-10 flex items-center justify-center"></div>
-
-                <div id="pet-body-main" onmouseenter="touchPet('main')" class="cursor-pointer transition-all duration-200 animate-breathe flex flex-col items-center">
-                    <div class="flex justify-between w-20 px-2">
-                        <div class="w-4 h-4 skin-light rounded-tl-full"></div>
-                        <div class="w-4 h-4 skin-light rounded-tr-full"></div>
-                    </div>
-                    <div class="w-24 h-16 skin-light rounded-3xl flex flex-col justify-center items-center relative shadow-md">
-                        <div class="flex justify-between w-14 px-2 mb-1">
-                            <span class="eye-color eye-l text-xs font-bold transition-all">●</span>
-                            <span class="eye-color eye-r text-xs font-bold transition-all">●</span>
-                        </div>
-                        <div class="eye-color pet-mouth text-[10px] font-mono mt-[-4px]">ω</div>
-                    </div>
-                    <div class="flex items-end mt-[-6px] relative">
-                        <div class="pet-tail w-3 h-8 skin-dark rounded-full absolute left-[-10px] bottom-2 origin-bottom rotate-[-30deg] transition-all"></div>
-                        <div class="w-20 h-16 skin-dark rounded-b-3xl shadow-inner relative flex justify-around px-2 items-end pb-1">
-                            <div class="w-4 h-5 skin-light rounded-b-full"></div>
-                            <div class="w-4 h-5 skin-light rounded-b-full"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div id="mood-bubble" class="mt-4 bg-[#3A4F50] text-white text-[10px] px-2 py-0.5 rounded-full pixel-text opacity-70">
-                    平穩呼吸中...摸我...
-                </div>
-
-                <div class="w-full bg-gray-300 rounded-full h-2.5 border-2 border-[#3A4F50] mt-3 relative overflow-hidden">
-                    <div id="hunger-bar" class="bg-green-500 h-full transition-all duration-500" style="width: 100%"></div>
-                </div>
-            </div>
-
-            <div class="space-y-2">
-                <button onclick="feedPet()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded border-b-4 border-blue-800 active:border-b-0 pixel-text text-sm cursor-pointer transition">
-                    🍖 餵食主食罐 (-100)
-                </button>
-                <button id="heal-btn" onclick="healPet()" class="hidden w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded border-b-4 border-red-800 active:border-b-0 pixel-text text-sm cursor-pointer transition">
-                    🏥 急診治病 (-5,000)
-                </button>
-            </div>
-        </div>
+  <div id="main-game-layout">
+    
+    <div id="cat-room">
+      <div class="room-title">🏡 貓咪的舒適小屋</div>
+      <div id="room-decor-item" class="decor-layer"></div>
     </div>
 
-    <div id="floating-ball" onclick="restoreGame(event)" ondblclick="spinPet(event)" onmouseenter="touchPet('mini')" class="hidden fixed top-2 left-2 w-[100px] h-[100px] bg-white/90 backdrop-blur-sm rounded-full border-4 border-[#3A4F50] shadow-2xl flex justify-center items-center cursor-pointer hover:scale-105 transition-transform duration-200 z-50 overflow-visible">
-        <div id="particle-container-mini" class="absolute inset-0 pointer-events-none z-10 flex items-center justify-center"></div>
-        <div id="ball-alert" class="hidden absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full border-2 border-white z-20"></div>
-        
-        <div id="pet-body-mini" class="animate-breathe flex flex-col items-center transform scale-50 origin-bottom mt-6">
-            <div class="flex justify-between w-20 px-2">
-                <div class="w-4 h-4 skin-light rounded-tl-full"></div>
-                <div class="w-4 h-4 skin-light rounded-tr-full"></div>
-            </div>
-            <div class="w-24 h-16 skin-light rounded-3xl flex flex-col justify-center items-center relative shadow-md">
-                <div class="flex justify-between w-14 px-2 mb-1">
-                    <span class="eye-color eye-l text-xs font-bold transition-all">●</span>
-                    <span class="eye-color eye-r text-xs font-bold transition-all">●</span>
-                </div>
-                <div class="eye-color pet-mouth text-[10px] font-mono mt-[-4px]">ω</div>
-            </div>
-            <div class="flex items-end mt-[-6px] relative">
-                <div class="pet-tail w-3 h-8 skin-dark rounded-full absolute left-[-10px] bottom-2 origin-bottom rotate-[-30deg] transition-all"></div>
-                <div class="w-20 h-16 skin-dark rounded-b-3xl shadow-inner relative flex justify-around px-2 items-end pb-1">
-                    <div class="w-4 h-5 skin-light rounded-b-full"></div>
-                    <div class="w-4 h-5 skin-light rounded-b-full"></div>
-                </div>
-            </div>
+    <div id="control-panel">
+      
+      <div class="panel-section">
+        <h3>🛒 潮流商城</h3>
+        <div class="shop-grid">
+          <div class="shop-card">
+            <span class="icon">🪖</span>
+            <span class="name">極速安全帽</span>
+            <button class="buy-btn" data-id="helmet_1" data-price="200" data-type="helmet" data-asset="🪖">$200</button>
+          </div>
+          <div class="shop-card">
+            <span class="icon">🏍️</span>
+            <span class="name">跑山神車</span>
+            <button class="buy-btn" data-id="bike_1" data-price="600" data-type="vehicle" data-asset="🏍️">$600</button>
+          </div>
+          <div class="shop-card">
+            <span class="icon">🖥️</span>
+            <span class="name">海景房主機</span>
+            <button class="buy-btn" data-id="decor_1" data-price="800" data-type="decor" data-asset="🖥️">$800</button>
+          </div>
         </div>
+      </div>
+
+      <div class="panel-section">
+        <h3>👕 我的衣櫃 / 倉庫</h3>
+        <div id="inventory-list">
+          <p style="color: #666; font-size: 13px;">切換已擁有的外觀：</p>
+          <div class="inventory-item" data-type="clear">❌ 脫下所有裝備</div>
+        </div>
+      </div>
+
     </div>
+  </div>
 
-    <script>
-        let state = { hunger: 100, isSick: false, money: 50000, isHidden: false, lastUpdateTime: Date.now() };
-        const NORMAL_HUNGER_RATE = 1.2, HIDDEN_HUNGER_RATE = 0.3, SICK_PROBABILITY_PER_SEC = 0.02; 
-        let clickTimer = null;
+  <div id="corner-mate-container" class="state-idle">
+    <div id="mate-dialogue"></div> 
+    <div id="mate-ui-panel">
+      <button id="work-btn" class="mate-btn">去打工</button>
+    </div>
+    <div id="layer-vehicle" class="mate-layer"></div>
+    <div id="layer-body" class="mate-layer"></div>
+    <div id="layer-face" class="mate-layer"></div>
+    <div id="layer-prop" class="mate-layer"></div>
+    <div id="layer-helmet" class="mate-layer"></div>
+  </div>
 
-        function initGame() {
-            let savedState = localStorage.getItem('petExtensionState');
-            if (savedState) { state = JSON.parse(savedState); calculateOfflineProgress(); } 
-            else { state.lastUpdateTime = Date.now(); saveGame(); }
-            updateUI(); setInterval(gameLoop, 1000);
-        }
-
-        function calculateOfflineProgress() {
-            let now = Date.now(), secondsPassed = (now - state.lastUpdateTime) / 1000;
-            if (secondsPassed > 0) {
-                let rate = state.isHidden ? HIDDEN_HUNGER_RATE : NORMAL_HUNGER_RATE;
-                state.hunger -= (secondsPassed * rate);
-                if (state.hunger < 0) state.hunger = 0;
-                if (!state.isSick && Math.random() < (1 - Math.pow((1 - SICK_PROBABILITY_PER_SEC), secondsPassed))) state.isSick = true;
-            }
-            state.lastUpdateTime = now; saveGame();
-        }
-
-        function gameLoop() {
-            let now = Date.now(), deltaSeconds = (now - state.lastUpdateTime) / 1000;
-            state.lastUpdateTime = now;
-            let rate = state.isHidden ? HIDDEN_HUNGER_RATE : NORMAL_HUNGER_RATE;
-            state.hunger -= (deltaSeconds * rate);
-            if (state.hunger <= 0) { state.hunger = 0; state.isSick = true; }
-            if (!state.isSick && state.hunger > 0 && Math.random() < (SICK_PROBABILITY_PER_SEC * deltaSeconds)) state.isSick = true;
-            updateUI(); saveGame();
-        }
-
-        function touchPet(mode) {
-            if (state.isSick) return; 
-            const containerId = mode === 'main' ? 'pet-body-main' : 'pet-body-mini';
-            const particleId = mode === 'main' ? 'particle-container-main' : 'particle-container-mini';
-            const petContainer = document.getElementById(containerId);
-            
-            petContainer.classList.remove('animate-breathe', 'animate-jump', 'animate-spin-crazy');
-            void petContainer.offsetWidth; 
-            petContainer.classList.add('animate-touch');
-            setFace(containerId, ">", "<", "▽", "rotate(20deg)");
-            if(mode === 'main') document.getElementById('mood-bubble').innerText = "（ 蹭蹭 ）好舒服喔～";
-
-            spawnParticles(particleId, "❤️", "#f43f5e", "pop-particle");
-
-            setTimeout(() => {
-                petContainer.classList.remove('animate-touch');
-                if (!state.isSick) {
-                    petContainer.classList.add('animate-breathe');
-                    setFace(containerId, "●", "●", "ω", "rotate(-30deg)");
-                    if(mode === 'main') document.getElementById('mood-bubble').innerText = "摸我...";
-                }
-            }, 400);
-        }
-
-        function spinPet(event) {
-            event.stopPropagation(); clearTimeout(clickTimer); 
-            if (state.isSick) return;
-            const petContainer = document.getElementById('pet-body-mini');
-            petContainer.classList.remove('animate-breathe', 'animate-touch');
-            void petContainer.offsetWidth;
-            petContainer.classList.add('animate-spin-crazy');
-            
-            setFace('pet-body-mini', "＠", "＠", "△", "rotate(0deg)");
-            spawnParticles('particle-container-mini', "✨", "#eab308", "star-particle"); 
-
-            setTimeout(() => {
-                petContainer.classList.remove('animate-spin-crazy');
-                if (!state.isSick) { petContainer.classList.add('animate-breathe'); setFace('pet-body-mini', "●", "●", "ω", "rotate(-30deg)"); }
-            }, 500);
-        }
-
-        function feedPet() {
-            if (state.isSick) { alert("生病中吃不下！請就醫！"); return; }
-            if (state.money >= 100) {
-                state.money -= 100; state.hunger += 20;
-                if (state.hunger > 100) state.hunger = 100;
-                const petContainer = document.getElementById('pet-body-main');
-                petContainer.classList.remove('animate-breathe', 'animate-touch');
-                void petContainer.offsetWidth; petContainer.classList.add('animate-jump'); 
-                setFace('pet-body-main', "★", "★", "口", "rotate(-10deg)");
-                document.getElementById('mood-bubble').innerText = "起飛吃肉！";
-                spawnParticles('particle-container-main', "+20", "#16a34a", "pop-particle");
-                setTimeout(() => { petContainer.classList.remove('animate-jump'); if (!state.isSick) petContainer.classList.add('animate-breathe'); }, 600);
-                updateUI(); saveGame();
-            } else { alert("破產了！"); }
-        }
-
-        function setFace(parentId, eyeL, eyeR, mouth, tailRotation) {
-            const parent = document.getElementById(parentId);
-            parent.querySelector('.eye-l').innerText = eyeL;
-            parent.querySelector('.eye-r').innerText = eyeR;
-            parent.querySelector('.pet-mouth').innerText = mouth;
-            parent.querySelector('.pet-tail').style.transform = tailRotation;
-        }
-
-        function spawnParticles(containerId, text, color, animationClass) {
-            const container = document.getElementById(containerId);
-            for (let i = 0; i < 3; i++) {
-                const p = document.createElement('div');
-                p.className = `absolute font-bold text-lg ${animationClass}`;
-                p.style.color = color; p.innerText = text;
-                p.style.left = `${Math.random() * 40 - 20}px`; p.style.top = `-10px`;
-                container.appendChild(p); setTimeout(() => { p.remove(); }, 800);
-            }
-        }
-
-        function healPet() {
-            if (state.money >= 5000) {
-                state.money -= 5000; state.isSick = false;
-                document.getElementById('pet-body-main').className = "cursor-pointer transition-all duration-200 animate-breathe flex flex-col items-center";
-                document.getElementById('pet-body-mini').className = "animate-breathe flex flex-col items-center transform scale-50 origin-bottom mt-6";
-                updateUI(); saveGame();
-            } else { alert("醫療費不足！"); }
-        }
-
-        function toggleHide(e) {
-            if(e) e.stopPropagation();
-            state.isHidden = true;
-            if(window.parent) window.parent.postMessage("shrink", "*");
-            updateUI(); saveGame();
-        }
-
-        function restoreGame(e) {
-            clearTimeout(clickTimer);
-            clickTimer = setTimeout(() => {
-                state.isHidden = false;
-                if(window.parent) window.parent.postMessage("expand", "*");
-                updateUI(); saveGame();
-            }, 250);
-        }
-
-        function saveGame() { localStorage.setItem('petExtensionState', JSON.stringify(state)); }
-
-        function updateUI() {
-            let mainWindow = document.getElementById('main-window'), floatingBall = document.getElementById('floating-ball');
-            if (state.isHidden) {
-                mainWindow.classList.add('scale-0', 'opacity-0', 'pointer-events-none');
-                setTimeout(() => { mainWindow.classList.add('hidden'); floatingBall.classList.remove('hidden'); }, 300);
-                
-                let ballAlert = document.getElementById('ball-alert'), petMini = document.getElementById('pet-body-mini');
-                if (state.isSick || state.hunger < 20) {
-                    ballAlert.classList.remove('hidden'); floatingBall.classList.add('sick-alert');
-                    if (state.isSick && !petMini.classList.contains('animate-sick')) {
-                        petMini.className = "animate-sick flex flex-col items-center transform scale-50 origin-bottom mt-6";
-                        setFace('pet-body-mini', "×", "×", "n", "rotate(0deg)");
-                        document.documentElement.style.setProperty('--pet-skin-dark', 'var(--pet-sick-dark)');
-                        document.documentElement.style.setProperty('--pet-skin-light', 'var(--pet-sick-light)');
-                    }
-                } else {
-                    ballAlert.classList.add('hidden'); floatingBall.classList.remove('sick-alert');
-                    if(!state.isSick && petMini.classList.contains('animate-sick')) {
-                        petMini.className = "animate-breathe flex flex-col items-center transform scale-50 origin-bottom mt-6";
-                        setFace('pet-body-mini', "●", "●", "ω", "rotate(-30deg)");
-                        document.documentElement.style.setProperty('--pet-skin-dark', '#2A3A3B');
-                        document.documentElement.style.setProperty('--pet-skin-light', '#3A4F50');
-                    }
-                }
-            } else {
-                floatingBall.classList.add('hidden'); mainWindow.classList.remove('hidden');
-                setTimeout(() => { mainWindow.classList.remove('scale-0', 'opacity-0', 'pointer-events-none'); }, 10);
-                document.getElementById('pet-money').innerText = `💰 存款: ${state.money.toLocaleString()}`;
-                let hungerBar = document.getElementById('hunger-bar'); hungerBar.style.width = `${state.hunger}%`;
-                let petMain = document.getElementById('pet-body-main');
-
-                if (state.isSick) {
-                    document.getElementById('pet-status').innerText = "🐾 狀態: 🤒 急診生病";
-                    document.getElementById('pet-status').className = "text-red-600 font-bold";
-                    hungerBar.className = "bg-red-500 h-full transition-all duration-500";
-                    document.documentElement.style.setProperty('--pet-skin-dark', 'var(--pet-sick-dark)');
-                    document.documentElement.style.setProperty('--pet-skin-light', 'var(--pet-sick-light)');
-                    petMain.className = "cursor-pointer transition-all duration-200 animate-sick flex flex-col items-center";
-                    if(!petMain.classList.contains('animate-jump')) { setFace('pet-body-main', "×", "×", "n", "rotate(0deg)"); document.getElementById('mood-bubble').innerText = "生病發冷中..."; }
-                    document.getElementById('heal-btn').classList.remove('hidden');
-                } else {
-                    document.getElementById('pet-status').innerText = "🐾 狀態: 🌱 正常"; document.getElementById('pet-status').className = "text-[#3A4F50] font-bold";
-                    if(state.hunger > 50) hungerBar.className = "bg-green-500 h-full transition-all duration-500";
-                    else if(state.hunger > 20) hungerBar.className = "bg-yellow-500 h-full transition-all duration-500";
-                    else hungerBar.className = "bg-red-500 h-full transition-all duration-500";
-                    document.documentElement.style.setProperty('--pet-skin-dark', '#2A3A3B'); document.documentElement.style.setProperty('--pet-skin-light', '#3A4F50');
-
-                    if(!petMain.classList.contains('animate-touch') && !petMain.classList.contains('animate-jump')) {
-                        petMain.className = "cursor-pointer transition-all duration-200 animate-breathe flex flex-col items-center";
-                        if (state.hunger < 30) { setFace('pet-body-main', "●", "●", "A", "rotate(-30deg)"); document.getElementById('mood-bubble').innerText = "肚子扁了！餵食！"; } 
-                        else { setFace('pet-body-main', "●", "●", "ω", "rotate(-30deg)"); document.getElementById('mood-bubble').innerText = "平穩呼吸中...摸我..."; }
-                    }
-                    document.getElementById('heal-btn').classList.add('hidden');
-                }
-            }
-        }
-        initGame();
-    </script>
+  <script src="content.js"></script>
 </body>
 </html>
