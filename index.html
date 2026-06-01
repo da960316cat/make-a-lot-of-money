@@ -3,72 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CornerMate 貓咪後台管理基地</title>
+  <title>毛孩放置宇宙</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div id="game-header">
-    <div class="logo">🐾 CornerMate 房間基地</div>
-    <div class="stats">
-      <span>💰 金幣: <span id="money-display">1000</span></span>
-      <button id="minimize-btn">🔌 縮小成陪伴模式</button>
-    </div>
-  </div>
-
-  <div id="main-game-layout">
+  <div id="tamagotchi-app" class="machine-container">
     
-    <div id="cat-room">
-      <div class="room-title">🏡 貓咪的舒適小屋</div>
-      <div id="room-decor-item" class="decor-layer"></div>
-    </div>
-
-    <div id="control-panel">
+    <div class="machine-header">
+      <span class="status">🐾 狀態：🌱 正常</span>
+      <span class="money">💰 存款：<span id="money-display">4200</span></span>
       
-      <div class="panel-section">
-        <h3>🛒 潮流商城</h3>
-        <div class="shop-grid">
-          <div class="shop-card">
-            <span class="icon">🪖</span>
-            <span class="name">極速安全帽</span>
-            <button class="buy-btn" data-id="helmet_1" data-price="200" data-type="helmet" data-asset="🪖">$200</button>
-          </div>
-          <div class="shop-card">
-            <span class="icon">🏍️</span>
-            <span class="name">跑山神車</span>
-            <button class="buy-btn" data-id="bike_1" data-price="600" data-type="vehicle" data-asset="🏍️">$600</button>
-          </div>
-          <div class="shop-card">
-            <span class="icon">🖥️</span>
-            <span class="name">海景房主機</span>
-            <button class="buy-btn" data-id="decor_1" data-price="800" data-type="decor" data-asset="🖥️">$800</button>
-          </div>
-        </div>
+      <div class="header-btns">
+        <button id="open-shop-btn" class="sys-btn shop-btn">🛒 商城</button>
+        <button id="minimize-machine-btn" class="sys-btn min-btn">[-] 縮小</button>
+      </div>
+    </div>
+
+    <div class="machine-screen">
       </div>
 
-      <div class="panel-section">
-        <h3>👕 我的衣櫃 / 倉庫</h3>
-        <div id="inventory-list">
-          <p style="color: #666; font-size: 13px;">切換已擁有的外觀：</p>
-          <div class="inventory-item" data-type="clear">❌ 脫下所有裝備</div>
-        </div>
+    <div class="machine-footer">
+      <div class="progress-bar-container">
+        <div class="progress-bar"></div>
       </div>
-
+      <button class="action-btn">🍗 餵食主食罐 (-100)</button>
     </div>
+
   </div>
 
-  <div id="corner-mate-container" class="state-idle">
-    <div id="mate-dialogue"></div> 
-    <div id="mate-ui-panel">
-      <button id="work-btn" class="mate-btn">去打工</button>
-    </div>
-    <div id="layer-vehicle" class="mate-layer"></div>
-    <div id="layer-body" class="mate-layer"></div>
-    <div id="layer-face" class="mate-layer"></div>
-    <div id="layer-prop" class="mate-layer"></div>
-    <div id="layer-helmet" class="mate-layer"></div>
-  </div>
-
-  <script src="content.js"></script>
 </body>
 </html>
