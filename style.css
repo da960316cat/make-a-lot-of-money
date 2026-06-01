@@ -1,0 +1,68 @@
+/* 讓機台永遠在畫面正中央 */
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f9f9f9;
+  font-family: sans-serif;
+  overflow: hidden; 
+}
+
+/* --- 紅色機台外觀 --- */
+.machine-container {
+  background-color: #e34c56;
+  border: 4px solid #333;
+  border-radius: 20px;
+  padding: 20px;
+  width: 320px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  transition: opacity 0.5s ease, transform 0.5s ease; /* 機台消失的動畫 */
+}
+
+/* 🌟 當按下縮小後，機台會往上飄並隱形 */
+.machine-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-50px) scale(0.9); 
+}
+
+/* --- 機台內部排版 --- */
+.machine-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  border-bottom: 2px solid rgba(0,0,0,0.2);
+  padding-bottom: 10px;
+}
+.header-btns { display: flex; gap: 5px; }
+.sys-btn {
+  border: none; border-radius: 6px; padding: 4px 8px; 
+  cursor: pointer; font-weight: bold; color: white;
+}
+.shop-btn { background: #a855f7; }
+.min-btn { background: #333; }
+
+.machine-screen {
+  background-color: #a4cda3; /* 經典復古綠螢幕 */
+  border: 4px solid #333;
+  border-radius: 10px;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 15px;
+}
+
+.machine-footer { margin-top: 15px; }
+.progress-bar-container { background: #333; border-radius: 10px; height: 10px; margin-bottom: 10px; border: 2px solid #333;}
+.progress-bar { background: #4ade80; width: 80%; height: 100%; border-radius: 10px; }
+.action-btn {
+  width: 100%; background: #3b82f6; color: white; border: 3px solid #1e3a8a;
+  padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer;
+}
